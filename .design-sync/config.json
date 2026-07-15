@@ -1,0 +1,25 @@
+{
+  "pkg": "src",
+  "globalName": "AgriFintech",
+  "projectId": "a056d2ea-6914-4f77-9aae-5c23ca9c0e9a",
+  "shape": "package",
+  "srcDir": "components",
+  "tsconfig": "./tsconfig.json",
+  "cssEntry": "./.design-sync/generated-styles.css",
+  "extraEntries": ["./lib/i18n/LanguageContext.tsx"],
+  "provider": {"component": "LanguageProvider"},
+  "readmeHeader": ".design-sync/conventions.md",
+  "componentSrcMap": {
+    "CropAdvisoryScreen": null,
+    "FarmGateScreen": null,
+    "HomeScreen": null,
+    "OpsDashboardScreen": null,
+    "OpsVisitScreen": null,
+    "Hero": null,
+    "FinalCta": null,
+    "MissionSection": null
+  },
+  "libOverrides": {
+    "source-kit.mjs": "synth-entry mode's export-* included componentSrcMap:null-excluded files anyway (next/link crashes the whole bundle via process.env); fork also excludes them from the synthesized entry, not just the preview list"
+  }
+}
