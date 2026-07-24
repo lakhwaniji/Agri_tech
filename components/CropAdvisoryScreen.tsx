@@ -5,9 +5,17 @@ import Link from "next/link";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 import type { TranslationKey } from "@/lib/i18n/translations";
 import { CameraIcon, ArrowRightIcon } from "@/components/icons";
+import { SeedIcon, FertilizerIcon, PesticideIcon, EquipmentIcon } from "@/components/marketplace-icons";
 import type { Season } from "@/lib/mocked/crop-suggestions";
 import type { AdvisoryRule } from "@/lib/mocked/crop-advisory-rules";
 import type { MarketplaceItem } from "@/lib/mocked/crop-marketplace-items";
+
+const CATEGORY_VISUALS: Record<MarketplaceItem["category"], { Icon: typeof SeedIcon; bg: string }> = {
+  seed: { Icon: SeedIcon, bg: "bg-lime-50" },
+  fertilizer: { Icon: FertilizerIcon, bg: "bg-amber-50" },
+  pesticide: { Icon: PesticideIcon, bg: "bg-sky-50" },
+  equipment: { Icon: EquipmentIcon, bg: "bg-zinc-100" },
+};
 
 type Farm = {
   id: string;
@@ -400,10 +408,13 @@ export function CropAdvisoryScreen({
               <AdvisoryCard icon="🐛" title={t("cropAdvisory.advisory.pestAlert")} body={advisory.pestAlert} color="orange" />
               <MarketplaceTeaser
                 items={marketplaceItems}
+                cropType={cropType}
                 title={t("cropAdvisory.marketplace.title")}
-                comingSoonLabel={t("cropAdvisory.marketplace.comingSoon")}
+                viewAllLabel={t("cropAdvisory.marketplace.viewAll")}
                 tractorLabel={t("cropAdvisory.tractor.label")}
                 tractorCta={t("cropAdvisory.tractor.cta")}
+                comingSoonLabel={t("cropAdvisory.marketplace.comingSoon")}
+                ourPickLabel={t("marketplace.ourPick")}
                 onComingSoon={showToast}
               />
             </div>
@@ -483,36 +494,52 @@ function AdvisoryCard({ icon, title, body, color }: {
   );
 }
 
-function MarketplaceTeaser({ items, title, comingSoonLabel, tractorLabel, tractorCta, onComingSoon }: {
+function MarketplaceTeaser({
+  items, cropType, title, viewAllLabel, tractorLabel, tractorCta, comingSoonLabel, ourPickLabel, onComingSoon,
+}: {
   items: MarketplaceItem[];
+  cropType: string | null;
   title: string;
-  comingSoonLabel: string;
+  viewAllLabel: string;
   tractorLabel: string;
   tractorCta: string;
+  comingSoonLabel: string;
+  ourPickLabel: string;
   onComingSoon: (msg: string) => void;
 }) {
+  const marketplaceHref = cropType ? `/marketplace?crop=${encodeURIComponent(cropType)}` : "/marketplace";
   return (
     <div className="mt-2 rounded-2xl bg-white p-4 shadow-sm">
       <p className="mb-3 text-sm font-semibold text-zinc-700">{title}</p>
       <div className="flex flex-col gap-2">
-        {items.map((item) => (
-          <button
-            key={item.name}
-            onClick={() => onComingSoon(`${item.name} — ${comingSoonLabel}`)}
-            className="flex items-center justify-between rounded-xl bg-zinc-50 px-3 py-2.5 text-left active:scale-95"
-          >
-            <div className="flex items-center gap-2">
-              <span className="text-xl">{item.emoji}</span>
-              <div>
-                <p className="text-xs font-medium text-zinc-800">{item.name}</p>
-                <p className="text-xs text-zinc-400">{item.priceRange}</p>
+        {items.map((item) => {
+          const { Icon, bg } = CATEGORY_VISUALS[item.category];
+          return (
+            <Link
+              key={item.name}
+              href={marketplaceHref}
+              className="flex items-center justify-between rounded-xl bg-zinc-50 px-3 py-2.5 text-left active:scale-95"
+            >
+              <div className="flex items-center gap-2">
+                <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${bg}`}>
+                  <Icon className="h-6 w-6" />
+                </div>
+                <div>
+                  <p className="flex items-center gap-1.5 text-xs font-medium text-zinc-800">
+                    {item.name}
+                    {item.recommended && (
+                      <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[9px] font-semibold text-emerald-700">
+                        ★ {ourPickLabel}
+                      </span>
+                    )}
+                  </p>
+                  <p className="text-xs text-zinc-400">{item.priceRange}</p>
+                </div>
               </div>
-            </div>
-            <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
-              {comingSoonLabel}
-            </span>
-          </button>
-        ))}
+              <ArrowRightIcon className="h-4 w-4 shrink-0 text-zinc-400" />
+            </Link>
+          );
+        })}
         <button
           onClick={() => onComingSoon(`${tractorLabel} — ${comingSoonLabel}`)}
           className="flex items-center justify-between rounded-xl bg-zinc-50 px-3 py-2.5 text-left active:scale-95"
@@ -529,6 +556,12 @@ function MarketplaceTeaser({ items, title, comingSoonLabel, tractorLabel, tracto
           </span>
         </button>
       </div>
+      <Link
+        href={marketplaceHref}
+        className="mt-3 flex items-center justify-center gap-1 rounded-xl bg-emerald-50 py-2.5 text-xs font-semibold text-emerald-700 active:scale-95"
+      >
+        {viewAllLabel} <ArrowRightIcon className="h-3.5 w-3.5" />
+      </Link>
     </div>
   );
 }

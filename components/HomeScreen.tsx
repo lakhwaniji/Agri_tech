@@ -59,7 +59,7 @@ const ACTIVE_MODULES: {
 }[] = [
   { labelKey: "modules.farmgate",     Icon: FarmGateIcon,   tile: "bg-emerald-100 text-emerald-700", href: "/farmgate" },
   { labelKey: "modules.cropAdvisory", Icon: CropHealthIcon,  tile: "bg-lime-100 text-lime-700",       href: "/crop-advisory" },
-  { labelKey: "modules.marketplace",  Icon: MarketplaceIcon, tile: "bg-amber-100 text-amber-700" },
+  { labelKey: "modules.marketplace",  Icon: MarketplaceIcon, tile: "bg-amber-100 text-amber-700", href: "/marketplace" },
   { labelKey: "modules.wallet",       Icon: WalletIcon,      tile: "bg-blue-100 text-blue-700" },
   { labelKey: "modules.weather",      Icon: WeatherIcon,     tile: "bg-sky-100 text-sky-700" },
   { labelKey: "modules.loanChecker",  Icon: QuickLoanIcon,   tile: "bg-purple-100 text-purple-700" },
@@ -111,9 +111,9 @@ const TABS: { id: Tab; label: string }[] = [
   { id: "services", label: "Services" },
 ];
 
-const NAV_ITEMS: { labelKey: TranslationKey; Icon: IconComponent }[] = [
+const NAV_ITEMS: { labelKey: TranslationKey; Icon: IconComponent; href?: string }[] = [
   { labelKey: "home.navHome",        Icon: FarmGateIcon },
-  { labelKey: "modules.marketplace", Icon: StorefrontIcon },
+  { labelKey: "modules.marketplace", Icon: StorefrontIcon, href: "/marketplace" },
   { labelKey: "modules.wallet",      Icon: WalletIcon },
   { labelKey: "home.navProfile",     Icon: UserIcon },
 ];
@@ -289,18 +289,30 @@ export function HomeScreen({
 
       {/* Bottom navigation */}
       <nav className="fixed inset-x-0 bottom-0 flex items-center justify-around border-t border-zinc-200 bg-white py-2">
-        {NAV_ITEMS.map((item, i) => (
-          <button
-            key={item.labelKey}
-            onClick={() => i !== 0 && showComingSoon(t(item.labelKey))}
-            className={`flex flex-col items-center gap-1 px-4 py-1 text-xs font-medium ${
-              i === 0 ? "text-emerald-700" : "text-zinc-500"
-            }`}
-          >
-            <item.Icon className="h-5 w-5" />
-            {t(item.labelKey)}
-          </button>
-        ))}
+        {NAV_ITEMS.map((item, i) => {
+          const content = (
+            <>
+              <item.Icon className="h-5 w-5" />
+              {t(item.labelKey)}
+            </>
+          );
+          const className = `flex flex-col items-center gap-1 px-4 py-1 text-xs font-medium ${
+            i === 0 ? "text-emerald-700" : "text-zinc-500"
+          }`;
+          return item.href ? (
+            <Link key={item.labelKey} href={item.href} className={className}>
+              {content}
+            </Link>
+          ) : (
+            <button
+              key={item.labelKey}
+              onClick={() => i !== 0 && showComingSoon(t(item.labelKey))}
+              className={className}
+            >
+              {content}
+            </button>
+          );
+        })}
       </nav>
 
       {toast && (
