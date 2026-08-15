@@ -37,14 +37,24 @@ async function getAccessToken(): Promise<string | null> {
 
 // Evalscript computes NDVI per pixel and a simple "is this pixel tree-like"
 // flag (NDVI above a threshold), so the Statistical API's histogram gives us
-// a rough tree-cover percentage alongside the average NDVI. Threshold of 0.5
-// is a common rough cutoff for dense vegetation — not validated, a starting
+// a rough tree-cover percentage alongside the average NDVI. Threshold of 0.3
+// targets general vegetation (crops, young trees, mixed plantation), not just
+// dense forest canopy — 0.5 was too strict and made tree_cover_percent (and
+// everything derived from it: biomass/CO2/O2) round to ~0 for most real farm
+// boundaries. Still not validated against forestry literature, a starting
 // point.
+//
+// dataMask is folded together with CLM (the s2cloudless cloud mask band) so
+// cloud pixels are excluded from the stats, not just true no-data edge
+// pixels. Found 2026-08-15: a farm's tree_cover_percent (and everything
+// derived from it) came back as 0 because the most recent Sentinel-2 pass
+// was fully cloud-covered — clouds read as near-zero NDVI, same signature as
+// bare land, and nothing was filtering them out before this fix.
 const EVALSCRIPT = `
 //VERSION=3
 function setup() {
   return {
-    input: [{ bands: ["B04", "B08", "dataMask"] }],
+    input: [{ bands: ["B04", "B08", "dataMask", "CLM"] }],
     output: [
       { id: "ndvi", bands: 1, sampleType: "FLOAT32" },
       { id: "treeFlag", bands: 1, sampleType: "UINT8" },
@@ -54,8 +64,9 @@ function setup() {
 }
 function evaluatePixel(sample) {
   let ndvi = (sample.B08 - sample.B04) / (sample.B08 + sample.B04);
-  let treeFlag = ndvi > 0.5 ? 1 : 0;
-  return { ndvi: [ndvi], treeFlag: [treeFlag], dataMask: [sample.dataMask] };
+  let treeFlag = ndvi > 0.3 ? 1 : 0;
+  let isValid = sample.dataMask * (1 - sample.CLM);
+  return { ndvi: [ndvi], treeFlag: [treeFlag], dataMask: [isValid] };
 }
 `;
 
@@ -80,7 +91,17 @@ export async function getTreeCoverStats(
     body: JSON.stringify({
       input: {
         bounds: { geometry: boundaryGeoJson },
-        data: [{ type: "sentinel-2-l2a" }],
+        // Without dataFilter, a single wide aggregationInterval (see below)
+        // defaults to the most recent scene regardless of cloud cover —
+        // that's what produced the all-zero O2 result on 2026-08-15.
+        // leastCC + maxCloudCoverage make it pick the clearest scene in the
+        // window instead.
+        data: [
+          {
+            type: "sentinel-2-l2a",
+            dataFilter: { mosaickingOrder: "leastCC", maxCloudCoverage: 20 },
+          },
+        ],
       },
       aggregation: {
         timeRange: {
