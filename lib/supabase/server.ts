@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 // Builds a Supabase client for use ON THE SERVER (Server Components, Route
 // Handlers, Server Actions) — NOT used by any page yet as of this writing.
@@ -12,6 +13,8 @@ import { cookies } from "next/headers";
 // cookie." We have to explicitly read it ourselves (via Next.js's cookies())
 // and explicitly hand Supabase a way to read/write it (via getAll/setAll).
 export async function createClient() {
+  if (process.env.DEMO_MODE === "true") return createDemoClient();
+
   // Reads the cookies that arrived with the current incoming request.
   // This is Next.js's own API, not Supabase's — it's the "waiter who reads
   // the order ticket and tells the kitchen what's on it."
@@ -48,4 +51,19 @@ export async function createClient() {
       },
     },
   );
+}
+
+async function createDemoClient() {
+  const admin = createAdminClient();
+  let id = process.env.DEMO_FARMER_ID;
+  if (!id) {
+    const { data } = await admin
+      .from("farms").select("farmer_id")
+      .order("created_at", { ascending: true }).limit(1).maybeSingle();
+    id = data?.farmer_id;
+  }
+  admin.auth.getUser = (async () => ({
+    data: { user: { id } }, error: null,
+  })) as unknown as typeof admin.auth.getUser;
+  return admin;
 }

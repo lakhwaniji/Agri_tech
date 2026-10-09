@@ -8,6 +8,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 // security check — duplicating it per-page risks one copy drifting/missing
 // a step later.
 export async function requireOpsUser() {
+  if (process.env.DEMO_MODE === "true") return { id: "demo-ops", full_name: "Demo Ops" };
   const cookieStore = await cookies();
   const opsId = cookieStore.get("ops_session")?.value;
 

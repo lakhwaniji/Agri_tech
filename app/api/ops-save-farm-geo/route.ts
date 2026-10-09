@@ -11,7 +11,7 @@ type Point = { lat: number; lng: number };
 export async function POST(request: Request) {
   const cookieStore = await cookies();
   const opsId = cookieStore.get("ops_session")?.value;
-  if (!opsId) {
+  if (!opsId && process.env.DEMO_MODE !== "true") {
     return NextResponse.json({ error: "Not logged in." }, { status: 401 });
   }
 
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
     .select("id")
     .eq("id", opsId)
     .single();
-  if (!opsUser) {
+  if (!opsUser && process.env.DEMO_MODE !== "true") {
     return NextResponse.json({ error: "Not logged in." }, { status: 401 });
   }
 
