@@ -1,0 +1,20 @@
+{
+  "appId": "in.ayaone.app",
+  "appName": "AyaOne",
+  "webDir": "www",
+  "server": {
+    "url": "https://app.ayaone.in/login",
+    "cleartext": false,
+    "errorPath": "offline.html"
+  },
+  "android": {
+    "backgroundColor": "#10221A",
+    "allowMixedContent": false,
+    "appendUserAgent": "AyaOneApp"
+  },
+  "ios": {
+    "appendUserAgent": "AyaOneApp",
+    "backgroundColor": "#10221A",
+    "contentInset": "never"
+  }
+}

@@ -15,12 +15,21 @@ export type TreeCoverStats = {
   treeCoverPercent: number;
 };
 
+// Endpoints are configurable so the same code works with either:
+//  - Sentinel Hub (Planet) commercial accounts — the defaults below, or
+//  - Copernicus Data Space Ecosystem (free, same Sentinel Hub APIs):
+//      SENTINEL_HUB_TOKEN_URL=https://identity.dataspace.copernicus.eu/auth/realms/CDSE/protocol/openid-connect/token
+//      SENTINEL_HUB_API_URL=https://sh.dataspace.copernicus.eu
+const TOKEN_URL =
+  process.env.SENTINEL_HUB_TOKEN_URL ?? "https://services.sentinel-hub.com/oauth/token";
+const API_URL = process.env.SENTINEL_HUB_API_URL ?? "https://services.sentinel-hub.com";
+
 async function getAccessToken(): Promise<string | null> {
   const clientId = process.env.SENTINEL_HUB_CLIENT_ID;
   const clientSecret = process.env.SENTINEL_HUB_CLIENT_SECRET;
   if (!clientId || !clientSecret) return null;
 
-  const res = await fetch("https://services.sentinel-hub.com/oauth/token", {
+  const res = await fetch(TOKEN_URL, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({
@@ -82,7 +91,7 @@ export async function getTreeCoverStats(
   const now = new Date();
   const ninetyDaysAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
 
-  const res = await fetch("https://services.sentinel-hub.com/api/v1/statistics", {
+  const res = await fetch(`${API_URL}/api/v1/statistics`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,

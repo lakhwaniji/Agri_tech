@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { DEMO_COOKIE } from "@/lib/demo";
 
 // Builds a Supabase client for use ON THE SERVER (Server Components, Route
 // Handlers, Server Actions) — NOT used by any page yet as of this writing.
@@ -54,16 +55,13 @@ export async function createClient() {
 }
 
 async function createDemoClient() {
+  // Demo mode: whoever was picked on the demo login screen (cookie) is the
+  // "logged-in" farmer. No pick yet -> no user, so pages send you to /login.
   const admin = createAdminClient();
-  let id = process.env.DEMO_FARMER_ID;
-  if (!id) {
-    const { data } = await admin
-      .from("farms").select("farmer_id")
-      .order("created_at", { ascending: true }).limit(1).maybeSingle();
-    id = data?.farmer_id;
-  }
+  const cookieStore = await cookies();
+  const id = cookieStore.get(DEMO_COOKIE)?.value || process.env.DEMO_FARMER_ID || null;
   admin.auth.getUser = (async () => ({
-    data: { user: { id } }, error: null,
+    data: { user: id ? { id } : null }, error: null,
   })) as unknown as typeof admin.auth.getUser;
   return admin;
 }

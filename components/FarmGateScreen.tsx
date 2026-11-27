@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { createClient } from "@/lib/supabase/client";
+import { farmStage, type FarmSummary, type FarmVisit } from "@/lib/farm-summary";
 
 // Leaflet touches `window` at import time, which breaks server rendering —
 // loading it only on the client (ssr: false) sidesteps that entirely.
@@ -14,6 +14,7 @@ const FarmMap = dynamic(
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 import type { TranslationKey } from "@/lib/i18n/translations";
 import { Logo } from "@/components/Logo";
+import { FarmerShell } from "@/components/FarmerShell";
 import {
   CalendarIcon,
   CheckCircleIcon,
@@ -22,23 +23,11 @@ import {
   FarmGateIcon,
   MapPinIcon,
   PlusIcon,
+  ArrowRightIcon,
 } from "@/components/icons";
 
-type VisitStatus = "requested" | "scheduled" | "completed" | "cancelled";
-
-type FarmVisit = {
-  id: string;
-  scheduled_date: string;
-  scheduled_time_slot: string;
-  status: VisitStatus;
-};
-
-type Farm = {
-  id: string;
-  label: string | null;
-  visit_address: string;
-  farm_visits: FarmVisit[];
-};
+type VisitStatus = FarmVisit["status"];
+type Farm = FarmSummary;
 
 const STATUS_KEYS: Record<VisitStatus, TranslationKey> = {
   requested: "farmgate.statusRequested",
@@ -46,6 +35,13 @@ const STATUS_KEYS: Record<VisitStatus, TranslationKey> = {
   completed: "farmgate.statusCompleted",
   cancelled: "farmgate.statusCancelled",
 };
+
+const STAGE_KEYS: TranslationKey[] = [
+  "farmgate.stepRequested",
+  "farmgate.stepVisit",
+  "farmgate.stepMapped",
+  "farmgate.stepGreen",
+];
 
 const TIME_SLOTS: { value: string; labelKey: TranslationKey }[] = [
   { value: "morning", labelKey: "farmgate.timeMorning" },
@@ -55,14 +51,12 @@ const TIME_SLOTS: { value: string; labelKey: TranslationKey }[] = [
 
 export function FarmGateScreen({
   fullName,
-  farmerId,
   farms,
 }: {
   fullName: string;
-  farmerId: string;
+  farmerId?: string;
   farms: Farm[];
 }) {
-  const supabase = createClient();
   const { t } = useLanguage();
 
   const [view, setView] = useState<"list" | "form" | "confirm">(
@@ -85,39 +79,18 @@ export function FarmGateScreen({
   } | null>(null);
 
   const [selectedFarm, setSelectedFarm] = useState<Farm | null>(null);
-  const [geo, setGeo] = useState<{
-    location: { lat: number; lng: number } | null;
-    boundary: { lat: number; lng: number }[] | null;
-  } | null>(null);
-  const [geoLoading, setGeoLoading] = useState(false);
-
-  const [greenDetails, setGreenDetails] = useState<{
-    vegetation_type: string;
-    maturity: string;
-    tree_cover_percent: number | null;
-    o2_tons: number | null;
-  } | null>(null);
-
-  async function handleOpenFarm(farm: Farm) {
+  function handleOpenFarm(farm: Farm) {
     setSelectedFarm(farm);
-    setGeo(null);
-    setGreenDetails(null);
-    setGeoLoading(true);
-    const { data } = await supabase.rpc("get_farm_geo", { p_farm_id: farm.id });
-    setGeo(data ?? { location: null, boundary: null });
-    setGeoLoading(false);
-
-    const { data: green } = await supabase
-      .from("farm_green_details")
-      .select("vegetation_type, maturity, tree_cover_percent, o2_tons")
-      .eq("farm_id", farm.id)
-      .order("analyzed_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    setGreenDetails(green);
   }
 
+  const geo = selectedFarm
+    ? { location: selectedFarm.location, boundary: selectedFarm.boundary }
+    : null;
+  const greenDetails = selectedFarm?.green ?? null;
+  const geoLoading = false;
+
   const isFirstFarm = farms.length === 0;
+  const totalHa = farms.reduce((a, f) => a + (f.areaHa ?? 0), 0);
   const today = new Date().toISOString().split("T")[0];
 
   function handleUseLocation() {
@@ -167,37 +140,24 @@ export function FarmGateScreen({
 
     setLoading(true);
 
-    const { data: farm, error: farmError } = await supabase
-      .from("farms")
-      .insert({
-        farmer_id: farmerId,
-        label: label.trim() || null,
-        visit_address: address.trim(),
-        // PostGIS expects "POINT(lng lat)" — longitude first, then latitude.
-        farm_location: coords
-          ? `SRID=4326;POINT(${coords.lng} ${coords.lat})`
-          : null,
-      })
-      .select("id")
-      .single();
-
-    if (farmError || !farm) {
-      setLoading(false);
-      setError(farmError?.message ?? "Something went wrong.");
-      return;
-    }
-
-    const { error: visitError } = await supabase.from("farm_visits").insert({
-      farm_id: farm.id,
-      farmer_id: farmerId,
-      scheduled_date: date,
-      scheduled_time_slot: timeSlot,
-      status: "requested",
+    // Goes through our API (server-side session) so it works in demo mode too.
+    const res = await fetch("/api/register-farm", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        visitAddress: address.trim(),
+        lat: coords?.lat,
+        lng: coords?.lng,
+        label: label.trim() || undefined,
+        scheduledDate: date,
+        timeSlot,
+      }),
     });
     setLoading(false);
 
-    if (visitError) {
-      setError(visitError.message);
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      setError(data.error ?? "Something went wrong.");
       return;
     }
 
@@ -209,58 +169,110 @@ export function FarmGateScreen({
     "min-h-12 w-full rounded-xl border border-zinc-200 bg-zinc-50 pl-11 pr-3 text-zinc-900 outline-none transition-colors placeholder:text-zinc-400 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-100";
 
   return (
-    <div className="flex min-h-screen flex-col bg-zinc-50 pb-12">
-      <header className="flex items-center justify-between px-6 py-4">
+    <FarmerShell active="farms" fullName={fullName}>
+    <div className="flex flex-col pb-12">
+      <header className="flex items-center justify-between px-6 py-4 lg:hidden">
         <Logo className="h-7 w-auto" />
         <Link href="/home" className="text-sm font-medium text-emerald-700">
           {t("farmgate.backHome")}
         </Link>
       </header>
 
-      <div className="mx-auto w-full max-w-md px-6">
+      <div className={`mx-auto w-full px-6 lg:px-10 lg:pt-10 ${view === "list" ? "max-w-md lg:max-w-6xl" : "max-w-md lg:max-w-xl"}`}>
         {view === "list" && (
           <>
-            <h1 className="text-xl font-bold text-zinc-900">
-              {t("farmgate.yourFarms")}
-            </h1>
-            <div className="mt-4 space-y-3">
+            <div className="flex items-end justify-between gap-3">
+              <h1 className="text-xl font-bold text-zinc-900 lg:text-3xl">{t("farmgate.yourFarms")}</h1>
+              <p className="text-sm text-zinc-600">
+                {farms.length} {t("home.farms")}
+                {totalHa > 0 && ` · ${totalHa.toLocaleString("en-IN", { maximumFractionDigits: 2 })} ha`}
+              </p>
+            </div>
+            <div className="mt-4 grid gap-4 lg:mt-6 lg:grid-cols-2 lg:gap-6 xl:grid-cols-3">
               {farms.map((farm) => {
                 const latestVisit = farm.farm_visits[0];
+                const stage = farmStage(farm);
+                const name = farm.label || farm.visit_address.split(",")[0];
                 return (
-                  <button
+                  <article
                     key={farm.id}
-                    onClick={() => handleOpenFarm(farm)}
-                    className="w-full rounded-2xl bg-white p-4 text-left shadow-sm transition-transform active:scale-[0.99]"
+                    className="ao-lift overflow-hidden rounded-3xl border border-zinc-200 bg-white"
                   >
-                    <p className="font-semibold text-zinc-900">
-                      {farm.label || farm.visit_address}
-                    </p>
-                    <p className="mt-0.5 flex items-center gap-1 text-sm text-zinc-500">
-                      <MapPinIcon className="h-3.5 w-3.5" />
-                      {farm.visit_address}
-                    </p>
-                    {latestVisit && (
-                      <div className="mt-2 flex items-center gap-2 text-sm">
-                        <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 font-medium text-emerald-700">
-                          {t(STATUS_KEYS[latestVisit.status])}
+                    {/* Map preview: the real OpenStreetMap tiles with the
+                        farm's red boundary. Not interactive here — the card
+                        opens the full map below. */}
+                    <div className="pointer-events-none relative isolate h-36 bg-emerald-50">
+                      {farm.location || (farm.boundary && farm.boundary.length >= 3) ? (
+                        <FarmMap
+                          location={farm.location}
+                          boundary={farm.boundary}
+                          height={144}
+                          interactive={false}
+                          rounded={false}
+                        />
+                      ) : (
+                        <div className="flex h-full items-center justify-center gap-2 text-sm text-emerald-800">
+                          <MapPinIcon className="h-4 w-4" />
+                          {t("farmgate.noMapYet")}
+                        </div>
+                      )}
+                      <span
+                        className={`absolute left-3 top-3 z-[500] rounded-full px-2.5 py-1 text-xs font-semibold ${
+                          stage === 4 ? "bg-emerald-700 text-white" : "bg-amber-100 text-amber-900"
+                        }`}
+                      >
+                        {latestVisit ? t(STATUS_KEYS[latestVisit.status]) : t(STAGE_KEYS[stage - 1])}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleOpenFarm(farm)}
+                      className="block w-full p-4 text-left"
+                    >
+                      <div className="flex items-baseline justify-between gap-2">
+                        <p className="font-semibold text-zinc-900">{name}</p>
+                        {farm.areaHa != null && (
+                          <span className="shrink-0 text-sm text-zinc-600">
+                            {farm.areaHa.toLocaleString("en-IN", { maximumFractionDigits: 2 })} ha
+                          </span>
+                        )}
+                      </div>
+                      <p className="mt-0.5 flex items-center gap-1 text-sm text-zinc-600">
+                        <MapPinIcon className="h-3.5 w-3.5 shrink-0" />
+                        <span className="truncate">{farm.visit_address}</span>
+                      </p>
+                      <div className="mt-3 grid grid-cols-4 gap-1.5">
+                        {STAGE_KEYS.map((key, i) => (
+                          <div key={key}>
+                            <div className={`h-1.5 rounded-full ${i < stage ? "bg-emerald-600" : "bg-zinc-200"}`} />
+                            <p className="mt-1.5 text-[11px] leading-tight text-zinc-700">{t(key)}</p>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="mt-3 flex items-center justify-between border-t border-zinc-100 pt-3 text-sm">
+                        <span className="text-zinc-600">
+                          {latestVisit
+                            ? `${latestVisit.scheduled_date} · ${t(
+                                TIME_SLOTS.find((s) => s.value === latestVisit.scheduled_time_slot)?.labelKey ??
+                                  "farmgate.timeMorning",
+                              )}`
+                            : ""}
                         </span>
-                        <span className="text-zinc-500">
-                          {latestVisit.scheduled_date} ·{" "}
-                          {t(
-                            TIME_SLOTS.find(
-                              (s) => s.value === latestVisit.scheduled_time_slot,
-                            )?.labelKey ?? "farmgate.timeMorning",
-                          )}
+                        <span className="flex items-center gap-1 font-semibold text-emerald-700">
+                          {farm.green?.co2_tons != null
+                            ? `${farm.green.co2_tons.toLocaleString("en-IN", { maximumFractionDigits: 1 })} t CO₂`
+                            : ""}
+                          <ArrowRightIcon className="h-4 w-4" />
                         </span>
                       </div>
-                    )}
-                  </button>
+                    </button>
+                  </article>
                 );
               })}
             </div>
             <button
               onClick={() => setView("form")}
-              className="mt-5 flex min-h-12 w-full items-center justify-center gap-2 rounded-full border-2 border-emerald-600 font-semibold text-emerald-700 transition-colors hover:bg-emerald-50"
+              className="mt-5 flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-emerald-700 lg:mt-8 lg:w-auto lg:px-8 font-semibold text-white shadow-lg shadow-emerald-700/25 transition-colors hover:bg-emerald-800"
             >
               <PlusIcon className="h-5 w-5" />
               {t("farmgate.addAnother")}
@@ -499,5 +511,6 @@ export function FarmGateScreen({
         </div>
       )}
     </div>
+    </FarmerShell>
   );
 }

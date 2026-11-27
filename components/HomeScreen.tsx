@@ -1,328 +1,259 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
-import { Logo } from "@/components/Logo";
 import { LanguageToggle } from "@/components/LanguageToggle";
+import { FarmerShell, useFarmerShell } from "@/components/FarmerShell";
+import { ACTIVE_MODULES } from "@/components/farmer-modules";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 import type { TranslationKey } from "@/lib/i18n/translations";
 import {
-  BasketIcon,
-  CarbonCreditIcon,
+  ArrowRightIcon,
+  ClockIcon,
   CloudIcon,
   CropHealthIcon,
-  CropInsuranceIcon,
-  CropLoanIcon,
-  DroneIcon,
-  ExpertIcon,
-  FarmGateIcon,
-  FingerprintIcon,
-  GovernmentIcon,
-  GraduationIcon,
-  GroupIcon,
-  HealthInsuranceIcon,
-  IrrigationIcon,
   MapPinIcon,
-  MarketplaceIcon,
-  MoneyTransferIcon,
-  NewsIcon,
-  PriceTagIcon,
-  QuickLoanIcon,
-  RadioIcon,
+  PlusIcon,
   RainIcon,
-  ReceiptIcon,
-  SatelliteIcon,
-  ShoppingBagIcon,
-  SoilIcon,
-  SolarPanelIcon,
-  StorefrontIcon,
+  ServicesGridIcon,
   SunIcon,
-  TractorIcon,
-  TruckIcon,
-  UserIcon,
-  WalletIcon,
-  WarehouseIcon,
-  WeatherIcon,
-  WrenchIcon,
-  FarmManagementIcon,
 } from "@/components/icons";
 import type { WeatherInfo } from "@/lib/weather";
+import { inr, PER_CREDIT_TO_FARMER, useCarbonDemo } from "@/lib/carbon-demo";
 
-type IconComponent = typeof FarmGateIcon;
-type Tab = "quick" | "fintech" | "agritech" | "services";
-
-const ACTIVE_MODULES: {
-  labelKey: TranslationKey;
-  Icon: IconComponent;
-  tile: string;
-  href?: string;
-}[] = [
-  { labelKey: "modules.farmgate",     Icon: FarmGateIcon,   tile: "bg-emerald-100 text-emerald-700", href: "/farmgate" },
-  { labelKey: "modules.cropAdvisory", Icon: CropHealthIcon,  tile: "bg-lime-100 text-lime-700",       href: "/crop-advisory" },
-  { labelKey: "modules.marketplace",  Icon: MarketplaceIcon, tile: "bg-amber-100 text-amber-700", href: "/marketplace" },
-  { labelKey: "modules.wallet",       Icon: WalletIcon,      tile: "bg-blue-100 text-blue-700" },
-  { labelKey: "modules.weather",      Icon: WeatherIcon,     tile: "bg-sky-100 text-sky-700" },
-  { labelKey: "modules.loanChecker",  Icon: QuickLoanIcon,   tile: "bg-purple-100 text-purple-700" },
-];
-
-const FINTECH_MODULES: { label: string; Icon: IconComponent }[] = [
-  { label: "Crop Loan",         Icon: CropLoanIcon },
-  { label: "Tractor Loan",      Icon: TractorIcon },
-  { label: "Equipment Loan",    Icon: WrenchIcon },
-  { label: "Solar Loan",        Icon: SolarPanelIcon },
-  { label: "Education Loan",    Icon: GraduationIcon },
-  { label: "Aadhaar Pay",       Icon: FingerprintIcon },
-  { label: "Bill Payments",     Icon: ReceiptIcon },
-  { label: "Crop Insurance",    Icon: CropInsuranceIcon },
-  { label: "Health Insurance",  Icon: HealthInsuranceIcon },
-  { label: "Money Transfer",    Icon: MoneyTransferIcon },
-];
-
-const AGRITECH_MODULES: { label: string; Icon: IconComponent }[] = [
-  { label: "Soil Health",       Icon: SoilIcon },
-  { label: "Farm Mapping",      Icon: MapPinIcon },
-  { label: "Drone Services",    Icon: DroneIcon },
-  { label: "Irrigation Mgmt",  Icon: IrrigationIcon },
-  { label: "Yield Prediction",  Icon: FarmManagementIcon },
-  { label: "Mandi Prices",      Icon: PriceTagIcon },
-  { label: "Satellite Monitor", Icon: SatelliteIcon },
-  { label: "Expert Connect",    Icon: ExpertIcon },
-  { label: "FPO Connect",       Icon: GroupIcon },
-  { label: "PM-KISAN",          Icon: GovernmentIcon },
-  { label: "Carbon Credits",    Icon: CarbonCreditIcon },
-  { label: "Agri News",         Icon: NewsIcon },
-];
-
-const SERVICES_MODULES: { label: string; Icon: IconComponent }[] = [
-  { label: "Tractor Rental",   Icon: TractorIcon },
-  { label: "Drone Rental",     Icon: DroneIcon },
-  { label: "Equipment Rental", Icon: WrenchIcon },
-  { label: "Input Shop",       Icon: ShoppingBagIcon },
-  { label: "Produce Selling",  Icon: BasketIcon },
-  { label: "Agri Radio",       Icon: RadioIcon },
-  { label: "Warehouse",        Icon: WarehouseIcon },
-  { label: "Transport",        Icon: TruckIcon },
-];
-
-const TABS: { id: Tab; label: string }[] = [
-  { id: "quick",    label: "Quick Access" },
-  { id: "fintech",  label: "Fintech" },
-  { id: "agritech", label: "Agritech" },
-  { id: "services", label: "Services" },
-];
-
-const NAV_ITEMS: { labelKey: TranslationKey; Icon: IconComponent; href?: string }[] = [
-  { labelKey: "home.navHome",        Icon: FarmGateIcon },
-  { labelKey: "modules.marketplace", Icon: StorefrontIcon, href: "/marketplace" },
-  { labelKey: "modules.wallet",      Icon: WalletIcon },
-  { labelKey: "home.navProfile",     Icon: UserIcon },
-];
+const SLOT_KEYS: Record<string, TranslationKey> = {
+  morning: "farmgate.timeMorning",
+  afternoon: "farmgate.timeAfternoon",
+  evening: "farmgate.timeEvening",
+};
 
 const WEATHER_ICONS = { sun: SunIcon, cloud: CloudIcon, rain: RainIcon };
 
-export function HomeScreen({
-  fullName,
-  weather,
-  time,
-}: {
+function formatNumber(n: number, digits: number) {
+  return n.toLocaleString("en-IN", { maximumFractionDigits: digits, minimumFractionDigits: 0 });
+}
+
+type HomeProps = {
   fullName: string;
   weather: WeatherInfo | null;
   time: string;
-}) {
+  farmCount: number;
+  totalHa: number;
+  totalCo2: number;
+  upcoming: { farm: string; date: string; slot: string } | null;
+  pick: { name: string; price: string } | null;
+  userKey: string;
+};
+
+export function HomeScreen(props: HomeProps) {
+  return (
+    <FarmerShell active="home" fullName={props.fullName}>
+      <HomeContent {...props} />
+    </FarmerShell>
+  );
+}
+
+function HomeContent({ fullName, weather, time, farmCount, totalHa, totalCo2, upcoming, pick, userKey }: HomeProps) {
   const { t } = useLanguage();
-  const [activeTab, setActiveTab] = useState<Tab>("quick");
-  const [toast, setToast] = useState<string | null>(null);
-
-  function showComingSoon(label: string) {
-    setToast(`${label} — ${t("home.comingSoon")}`);
-    setTimeout(() => setToast(null), 2000);
-  }
-
+  const { openMenu, comingSoon } = useFarmerShell();
   const WeatherGlyph = weather ? WEATHER_ICONS[weather.icon] : CloudIcon;
 
-  return (
-    <div className="flex min-h-screen flex-col bg-zinc-50 pb-36">
-      <header className="flex items-center justify-between px-6 py-4">
-        <Logo className="h-7 w-auto" />
-        <LanguageToggle />
-      </header>
+  const tileClass =
+    "ao-tile flex min-h-24 flex-col items-center justify-center gap-2 rounded-2xl border border-zinc-200 bg-white p-3 text-center lg:min-h-28";
 
-      {/* Greeting + weather card */}
-      <div className="px-6">
-        <div className="rounded-3xl bg-white p-5 shadow-sm">
-          <p className="text-sm text-zinc-500">{t("home.welcomeBack")}</p>
-          <h1 className="text-2xl font-bold text-zinc-900">
-            {t("home.greeting")} {fullName}
-          </h1>
-          <div className="mt-4 flex items-center gap-3 border-t border-zinc-100 pt-4">
-            <WeatherGlyph className="h-9 w-9 text-zinc-800" />
+  return (
+    <>
+      {/* Green header: greeting, language (phones only — desktop has it in the sidebar), weather */}
+      <div className="rounded-b-[28px] bg-emerald-900 px-5 pb-20 pt-5 text-white lg:rounded-none lg:px-10 lg:pb-24 lg:pt-10">
+        <div className="mx-auto flex max-w-md flex-col gap-5 lg:max-w-6xl lg:flex-row lg:items-end lg:justify-between">
+          <div className="flex items-center justify-between gap-3">
             <div>
-              {weather ? (
-                <>
-                  <p className="text-lg font-semibold text-zinc-900">
-                    {weather.temp}°C
-                    <span className="ml-1 font-normal capitalize text-zinc-500">
-                      {weather.condition}
-                    </span>
-                  </p>
-                  <p className="flex items-center gap-1 text-sm text-zinc-500">
-                    <MapPinIcon className="h-3.5 w-3.5" />
-                    {weather.locationName} · {time}
-                  </p>
-                </>
-              ) : (
-                <p className="text-sm text-zinc-500">{t("home.weatherUnavailable")}</p>
-              )}
+              <p className="text-sm text-emerald-200">{t("home.welcomeBack")}</p>
+              <h1 className="text-2xl font-semibold lg:text-4xl">
+                {t("home.greeting")} {fullName}
+              </h1>
+            </div>
+            <div className="rounded-full bg-white text-zinc-900 lg:hidden">
+              <LanguageToggle />
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* Module grid — switches based on active tab */}
-      <div className="mt-6 px-6">
-        {/* Quick Access */}
-        {activeTab === "quick" && (
-          <div className="grid grid-cols-3 gap-4">
-            {ACTIVE_MODULES.map((module) => {
-              const inner = (
-                <>
-                  <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${module.tile}`}>
-                    <module.Icon className="h-7 w-7" />
-                  </div>
-                  <span className="text-xs font-medium text-zinc-700">{t(module.labelKey)}</span>
-                </>
-              );
-              return module.href ? (
-                <Link
-                  key={module.labelKey}
-                  href={module.href}
-                  className="flex flex-col items-center gap-2 rounded-2xl bg-white p-4 text-center shadow-sm active:scale-95"
-                >
-                  {inner}
-                </Link>
+          <div className="ao-lift flex items-center justify-between gap-6 rounded-2xl bg-emerald-800 p-4 lg:min-w-96">
+            <div className="flex items-center gap-3">
+              <WeatherGlyph className="h-9 w-9 text-amber-200" />
+              {weather ? (
+                <div>
+                  <p className="text-2xl font-semibold leading-tight">{weather.temp}°C</p>
+                  <p className="text-sm capitalize text-emerald-100">{weather.condition}</p>
+                </div>
               ) : (
+                <p className="text-sm text-emerald-100">{t("home.weatherUnavailable")}</p>
+              )}
+            </div>
+            {weather && (
+              <p className="flex max-w-[50%] items-center gap-1 text-right text-sm text-emerald-100">
+                <MapPinIcon className="h-3.5 w-3.5 shrink-0" />
+                <span className="truncate">
+                  {weather.locationName} · {time}
+                </span>
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="mx-auto w-full max-w-md px-4 lg:max-w-6xl lg:px-10">
+        <div className="grid gap-6 lg:grid-cols-3">
+          {/* Left / main column */}
+          <div className="flex flex-col gap-6 lg:col-span-2">
+            {/* My farms summary, overlapping the header */}
+            <div className="ao-page -mt-14 rounded-3xl bg-white p-4 shadow-lg shadow-emerald-900/10 lg:-mt-16 lg:p-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-base font-semibold text-zinc-900 lg:text-lg">{t("home.myFarms")}</h2>
+                <Link href="/farmgate" className="flex min-h-11 items-center text-sm font-medium text-emerald-700">
+                  {t("home.seeAll")}
+                </Link>
+              </div>
+              {farmCount > 0 ? (
+                <div className="grid grid-cols-3 gap-2 text-center lg:mt-2 lg:text-left">
+                  <div className="lg:rounded-2xl lg:bg-zinc-50 lg:p-4">
+                    <p className="text-xl font-semibold text-zinc-900 lg:text-3xl">{farmCount}</p>
+                    <p className="text-xs text-zinc-600 lg:text-sm">{t("home.farms")}</p>
+                  </div>
+                  <div className="lg:rounded-2xl lg:bg-zinc-50 lg:p-4">
+                    <p className="text-xl font-semibold text-zinc-900 lg:text-3xl">{totalHa > 0 ? formatNumber(totalHa, 2) : "—"}</p>
+                    <p className="text-xs text-zinc-600 lg:text-sm">{t("home.hectares")}</p>
+                  </div>
+                  <div className="lg:rounded-2xl lg:bg-emerald-50 lg:p-4">
+                    <p className="text-xl font-semibold text-emerald-700 lg:text-3xl">
+                      {totalCo2 > 0 ? `${formatNumber(totalCo2, 1)} t` : "—"}
+                    </p>
+                    <p className="text-xs text-zinc-600 lg:text-sm">{t("home.co2PerYear")}</p>
+                  </div>
+                </div>
+              ) : (
+                <Link href="/farmgate" className="flex min-h-11 items-center gap-2 text-sm font-medium text-emerald-700">
+                  <PlusIcon className="h-4 w-4" />
+                  {t("home.noFarmsYet")}
+                </Link>
+              )}
+              {upcoming && (
+                <div className="mt-3 flex items-center gap-2 rounded-xl bg-amber-50 px-3 py-2.5 text-sm text-amber-900">
+                  <ClockIcon className="h-4 w-4 shrink-0 text-amber-700" />
+                  <span>
+                    {t("home.upcomingVisit")} · {upcoming.farm} · {upcoming.date},{" "}
+                    {t(SLOT_KEYS[upcoming.slot] ?? "farmgate.timeMorning")}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Carbon credits (new) */}
+            <CarbonCard userKey={userKey} />
+
+            {/* Services */}
+            <section>
+              <div className="flex items-center justify-between">
+                <h2 className="text-base font-semibold text-zinc-900 lg:text-lg">{t("home.services")}</h2>
                 <button
-                  key={module.labelKey}
-                  onClick={() => showComingSoon(t(module.labelKey))}
-                  className="flex flex-col items-center gap-2 rounded-2xl bg-white p-4 text-center shadow-sm active:scale-95"
+                  type="button"
+                  onClick={openMenu}
+                  className="hidden min-h-11 items-center gap-1.5 text-sm font-medium text-emerald-700 lg:flex"
                 >
-                  {inner}
+                  <ServicesGridIcon className="h-4 w-4" />
+                  {t("home.allServices")}
                 </button>
-              );
-            })}
-          </div>
-        )}
-
-        {/* Fintech */}
-        {activeTab === "fintech" && (
-          <div className="grid grid-cols-3 gap-4">
-            {FINTECH_MODULES.map((mod) => (
+              </div>
+              <div className="ao-stagger mt-3 grid grid-cols-3 gap-3 lg:gap-4">
+                {ACTIVE_MODULES.map((m) => {
+                  const inner = (
+                    <>
+                      <div className={`flex h-11 w-11 items-center justify-center rounded-xl lg:h-12 lg:w-12 ${m.tile}`}>
+                        <m.Icon className="h-6 w-6 lg:h-7 lg:w-7" />
+                      </div>
+                      <span className="text-xs font-medium text-zinc-800 lg:text-sm">{t(m.labelKey)}</span>
+                    </>
+                  );
+                  return m.href ? (
+                    <Link key={m.labelKey} href={m.href} className={tileClass}>
+                      {inner}
+                    </Link>
+                  ) : (
+                    <button key={m.labelKey} type="button" onClick={() => comingSoon(t(m.labelKey))} className={tileClass}>
+                      {inner}
+                    </button>
+                  );
+                })}
+              </div>
               <button
-                key={mod.label}
-                onClick={() => showComingSoon(mod.label)}
-                className="flex flex-col items-center gap-2 rounded-2xl bg-white p-4 text-center shadow-sm active:scale-95"
+                type="button"
+                onClick={openMenu}
+                className="mt-3 flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-zinc-300 text-sm font-medium text-zinc-700 lg:hidden"
               >
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
-                  <mod.Icon className="h-7 w-7" />
-                </div>
-                <span className="text-xs font-medium text-zinc-600">{mod.label}</span>
+                <ServicesGridIcon className="h-5 w-5" />
+                {t("home.allServices")}
               </button>
-            ))}
+            </section>
           </div>
-        )}
 
-        {/* Agritech */}
-        {activeTab === "agritech" && (
-          <div className="grid grid-cols-3 gap-4">
-            {AGRITECH_MODULES.map((mod) => (
-              <button
-                key={mod.label}
-                onClick={() => showComingSoon(mod.label)}
-                className="flex flex-col items-center gap-2 rounded-2xl bg-white p-4 text-center shadow-sm active:scale-95"
+          {/* Right column on desktop: today for your farm */}
+          <section className="lg:pt-2">
+            <h2 className="text-base font-semibold text-zinc-900 lg:text-lg">{t("home.todayForFarm")}</h2>
+            <div className="ao-stagger mt-3 flex flex-col gap-3">
+              <Link
+                href="/crop-advisory"
+                className="ao-lift flex items-center justify-between gap-3 rounded-2xl border border-zinc-200 bg-white p-4"
               >
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-50 text-green-600">
-                  <mod.Icon className="h-7 w-7" />
+                <div className="flex items-center gap-3">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-lime-100 text-lime-700">
+                    <CropHealthIcon className="h-6 w-6" />
+                  </div>
+                  <p className="text-sm font-medium text-zinc-900">{t("home.askAdvisor")}</p>
                 </div>
-                <span className="text-xs font-medium text-zinc-600">{mod.label}</span>
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* Services */}
-        {activeTab === "services" && (
-          <div className="grid grid-cols-3 gap-4">
-            {SERVICES_MODULES.map((mod) => (
-              <button
-                key={mod.label}
-                onClick={() => showComingSoon(mod.label)}
-                className="flex flex-col items-center gap-2 rounded-2xl bg-white p-4 text-center shadow-sm active:scale-95"
-              >
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-orange-50 text-orange-600">
-                  <mod.Icon className="h-7 w-7" />
+                <ArrowRightIcon className="h-5 w-5 shrink-0 text-zinc-400" />
+              </Link>
+              {pick && (
+                <div className="ao-lift flex items-center justify-between gap-3 rounded-2xl border border-zinc-200 bg-white p-4">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">★ {t("home.ourPick")}</p>
+                    <p className="mt-1 text-sm font-medium text-zinc-900">{pick.name}</p>
+                    <p className="text-sm text-zinc-600">{pick.price}</p>
+                  </div>
+                  <Link
+                    href="/marketplace"
+                    className="flex min-h-11 items-center rounded-xl bg-emerald-700 px-4 text-sm font-semibold text-white hover:bg-emerald-800"
+                  >
+                    {t("home.view")}
+                  </Link>
                 </div>
-                <span className="text-xs font-medium text-zinc-600">{mod.label}</span>
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Tab switcher — sits above bottom nav */}
-      <div className="fixed inset-x-0 bottom-14 z-40 px-4 pb-2">
-        <div className="flex gap-2 rounded-2xl bg-white p-1.5 shadow-lg ring-1 ring-zinc-200">
-          {TABS.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 rounded-xl py-2 text-xs font-semibold transition-all ${
-                activeTab === tab.id
-                  ? "bg-emerald-600 text-white shadow-sm"
-                  : "text-zinc-500 hover:text-zinc-800"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+              )}
+            </div>
+          </section>
         </div>
       </div>
+    </>
+  );
+}
 
-      {/* Bottom navigation */}
-      <nav className="fixed inset-x-0 bottom-0 flex items-center justify-around border-t border-zinc-200 bg-white py-2">
-        {NAV_ITEMS.map((item, i) => {
-          const content = (
-            <>
-              <item.Icon className="h-5 w-5" />
-              {t(item.labelKey)}
-            </>
-          );
-          const className = `flex flex-col items-center gap-1 px-4 py-1 text-xs font-medium ${
-            i === 0 ? "text-emerald-700" : "text-zinc-500"
-          }`;
-          return item.href ? (
-            <Link key={item.labelKey} href={item.href} className={className}>
-              {content}
-            </Link>
-          ) : (
-            <button
-              key={item.labelKey}
-              onClick={() => i !== 0 && showComingSoon(t(item.labelKey))}
-              className={className}
-            >
-              {content}
-            </button>
-          );
-        })}
-      </nav>
-
-      {toast && (
-        <div
-          role="status"
-          className="fixed inset-x-0 bottom-28 z-50 mx-auto w-fit rounded-full bg-zinc-900 px-5 py-2.5 text-sm font-medium text-white shadow-lg"
-        >
-          {toast}
+// New: carbon credits entry point on Home. Before joining it invites the
+// farmer in; after joining it shows credits ready to sell.
+function CarbonCard({ userKey }: { userKey: string }) {
+  const { state, ready, available } = useCarbonDemo(userKey);
+  if (!ready) return null;
+  return (
+    <Link href="/carbon" className="ao-lift flex items-center justify-between gap-4 rounded-3xl border border-emerald-300 bg-white p-4 lg:p-6">
+      <div>
+        <div className="flex items-center gap-2">
+          <h2 className="text-base font-semibold text-zinc-900 lg:text-lg">Carbon credits</h2>
+          <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-semibold text-amber-800">New</span>
         </div>
-      )}
-    </div>
+        <p className="mt-1 text-sm text-zinc-600">
+          {state.joined
+            ? `${available} credits ready to sell · ≈ ₹${inr(available * PER_CREDIT_TO_FARMER)} for you`
+            : "Get paid for greener farming. See how it works."}
+        </p>
+      </div>
+      <span className="ao-pulse-ring flex h-11 min-w-11 items-center justify-center rounded-full bg-emerald-700 px-4 text-sm font-semibold text-white">
+        {state.joined ? "Open" : "Start"}
+      </span>
+    </Link>
   );
 }
