@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { FarmerShell } from "@/components/FarmerShell";
 import { AyaLoader, AyaTick } from "@/components/AyaLoader";
@@ -262,7 +263,8 @@ export function CarbonScreen({ userKey, fullName, phone, farms }: { userKey: str
     body = (
       <>
         {header("Sell credits", "home")}
-        <div className="ao-backdrop fixed inset-0 z-50 flex items-end bg-black/45 sm:items-center sm:justify-center" onClick={() => setStep("sell")}>
+        {createPortal(
+        <div className="ao-backdrop fixed inset-0 z-[55] flex items-end bg-black/45 sm:items-center sm:justify-center" onClick={() => setStep("sell")}>
           <div role="dialog" aria-modal="true" aria-label="Confirm sale" onClick={(e) => e.stopPropagation()}
             className="ao-sheet w-full rounded-t-3xl bg-white p-5 sm:max-w-md sm:rounded-3xl">
             <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-zinc-300 sm:hidden" />
@@ -290,7 +292,9 @@ export function CarbonScreen({ userKey, fullName, phone, farms }: { userKey: str
             </button>
             <button type="button" className={`${obtn} mt-2`} onClick={() => setStep("sell")}>Cancel</button>
           </div>
-        </div>
+        </div>,
+          document.body,
+        )}
       </>
     );
   }

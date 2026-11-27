@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
 // AyaOne brand loader: the Sprout-O ring draws while the two leaves sway,
 // with a progress bar and changing status lines. Calls onDone at the end.
@@ -16,7 +17,9 @@ export function AyaLoader({ messages, onDone, stepMs = 900 }: { messages: string
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const pct = Math.round(((i + 1) / messages.length) * 100);
-  return (
+  // Portal to <body>: an animated (transformed) parent would otherwise trap
+  // this "fixed" overlay inside the page box instead of covering the screen.
+  return createPortal(
     <div role="status" aria-live="polite" className="fixed inset-0 z-[60] flex flex-col items-center justify-center gap-4 bg-[#f6f8f3]">
       <svg width="120" height="125" viewBox="0 0 100 104" aria-hidden="true" className="overflow-visible">
         <circle cx="50" cy="66" r="31" fill="none" stroke="#e3ede0" strokeWidth="13" />
@@ -31,7 +34,8 @@ export function AyaLoader({ messages, onDone, stepMs = 900 }: { messages: string
         <div className="h-full rounded-full bg-emerald-700 transition-[width] duration-500" style={{ width: `${pct}%` }} />
       </div>
       <p className="min-h-5 text-sm text-zinc-600">{messages[i]}</p>
-    </div>
+    </div>,
+    document.body,
   );
 }
 
