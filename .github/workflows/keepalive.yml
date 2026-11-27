@@ -1,0 +1,18 @@
+name: Keep Supabase awake
+
+# Free Supabase projects pause after ~7 days without database activity.
+# Once a day, call the app's /api/keepalive (one tiny DB query).
+# Set repository variable APP_URL, e.g. https://app.yourdomain.in
+on:
+  schedule:
+    - cron: "30 3 * * *" # 09:00 IST daily
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  ping:
+    if: vars.APP_URL != ''
+    runs-on: ubuntu-latest
+    steps:
+      - run: curl -fsS --retry 3 --max-time 30 "${{ vars.APP_URL }}/api/keepalive"

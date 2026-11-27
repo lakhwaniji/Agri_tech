@@ -46,3 +46,19 @@ next-env.d.ts
 .design-sync/.cache/
 .design-sync/learnings/
 .design-sync/node_modules
+
+# terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+
+# local Supabase data export (contains personal data — never commit)
+/supabase-export/
+*.tfvars
+!*.tfvars.example
+
+# local editor / agent settings
+.claude/settings.local.json
+**/.idea/

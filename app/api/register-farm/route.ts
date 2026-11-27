@@ -12,6 +12,9 @@ export async function POST(request: NextRequest) {
     visitAddress: string;
     lat?: number;
     lng?: number;
+    label?: string;
+    scheduledDate?: string;
+    timeSlot?: string;
   };
 
   if (!body.visitAddress) {
@@ -22,6 +25,7 @@ export async function POST(request: NextRequest) {
     .from("farms")
     .insert({
       farmer_id: userData.user.id,
+      label: body.label?.trim() || null,
       visit_address: body.visitAddress,
       farm_location:
         body.lat != null && body.lng != null
@@ -33,6 +37,20 @@ export async function POST(request: NextRequest) {
 
   if (error || !farm) {
     return NextResponse.json({ error: "Failed to create farm" }, { status: 500 });
+  }
+
+  // Optional: also book the field-agent visit (FarmGate "add a farm" flow).
+  if (body.scheduledDate && body.timeSlot) {
+    const { error: visitError } = await supabase.from("farm_visits").insert({
+      farm_id: farm.id,
+      farmer_id: userData.user.id,
+      scheduled_date: body.scheduledDate,
+      scheduled_time_slot: body.timeSlot,
+      status: "requested",
+    });
+    if (visitError) {
+      return NextResponse.json({ error: visitError.message }, { status: 500 });
+    }
   }
 
   return NextResponse.json({ farm });

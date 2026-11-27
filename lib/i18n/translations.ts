@@ -91,6 +91,37 @@ export type TranslationKey =
   | "home.comingSoon"
   | "home.navHome"
   | "home.navProfile"
+  | "profile.phone"
+  | "profile.location"
+  | "profile.pincode"
+  | "profile.farms"
+  | "profile.memberSince"
+  | "profile.language"
+  | "profile.logout"
+  | "profile.loggingOut"
+  | "profile.demoNote"
+  | "profile.details"
+  | "home.myFarms"
+  | "home.seeAll"
+  | "home.farms"
+  | "home.hectares"
+  | "home.co2PerYear"
+  | "home.services"
+  | "home.allServices"
+  | "home.menu"
+  | "home.close"
+  | "home.navFarms"
+  | "home.upcomingVisit"
+  | "home.noFarmsYet"
+  | "home.todayForFarm"
+  | "home.askAdvisor"
+  | "home.ourPick"
+  | "home.view"
+  | "farmgate.stepRequested"
+  | "farmgate.stepVisit"
+  | "farmgate.stepMapped"
+  | "farmgate.stepGreen"
+  | "farmgate.noMapYet"
   | "farmgate.greeting"
   | "farmgate.intro"
   | "farmgate.labelField"
@@ -183,6 +214,27 @@ export type TranslationKey =
 
 export const translations: Record<Locale, Record<TranslationKey, string>> = {
   en: {
+    "home.myFarms": "My farms",
+    "home.seeAll": "See all",
+    "home.farms": "farms",
+    "home.hectares": "hectares",
+    "home.co2PerYear": "CO₂ / year",
+    "home.services": "Services",
+    "home.allServices": "All services",
+    "home.menu": "Menu",
+    "home.close": "Close",
+    "home.navFarms": "Farms",
+    "home.upcomingVisit": "Agent visit",
+    "home.noFarmsYet": "Add your first farm to get started",
+    "home.todayForFarm": "Today for your farm",
+    "home.askAdvisor": "Ask the crop advisor what to grow this season",
+    "home.ourPick": "Our pick",
+    "home.view": "View",
+    "farmgate.stepRequested": "Requested",
+    "farmgate.stepVisit": "Agent visit",
+    "farmgate.stepMapped": "Mapped",
+    "farmgate.stepGreen": "Green score",
+    "farmgate.noMapYet": "Map after agent visit",
     "nav.language": "Language",
     "hero.title": "Welcome to your one-stop solution for Agri + Fintech",
     "hero.subtitle":
@@ -241,7 +293,7 @@ export const translations: Record<Locale, Record<TranslationKey, string>> = {
     "cta.subheading":
       "Grow a sustainable future — for your farm, and for the next generation.",
     "cta.button": "Get Started",
-    "login.heading": "Welcome to AgriFintech",
+    "login.heading": "Welcome to AyaOne",
     "login.subtitle": "Enter your phone number to get started.",
     "login.phoneLabel": "Phone number",
     "login.sendOtp": "Send OTP",
@@ -275,6 +327,16 @@ export const translations: Record<Locale, Record<TranslationKey, string>> = {
     "home.comingSoon": "coming soon",
     "home.navHome": "Home",
     "home.navProfile": "Profile",
+    "profile.phone": "Mobile number",
+    "profile.location": "Village / town",
+    "profile.pincode": "Pincode",
+    "profile.farms": "Farms registered",
+    "profile.memberSince": "Member since",
+    "profile.language": "App language",
+    "profile.logout": "Log out",
+    "profile.loggingOut": "Logging out…",
+    "profile.demoNote": "You're using a demo profile. Log out to pick another.",
+    "profile.details": "Your details",
     "farmgate.greeting": "Thank you for initiating a process.",
     "farmgate.intro": "Please fill the required details and schedule a visit.",
     "farmgate.labelField": "Farm name (optional)",
@@ -367,6 +429,27 @@ export const translations: Record<Locale, Record<TranslationKey, string>> = {
     "cropAdvisory.register.done": "Your farm is registered!",
   },
   hi: {
+    "home.myFarms": "मेरे खेत",
+    "home.seeAll": "सभी देखें",
+    "home.farms": "खेत",
+    "home.hectares": "हेक्टेयर",
+    "home.co2PerYear": "CO₂ / वर्ष",
+    "home.services": "सेवाएँ",
+    "home.allServices": "सभी सेवाएँ",
+    "home.menu": "मेनू",
+    "home.close": "बंद करें",
+    "home.navFarms": "खेत",
+    "home.upcomingVisit": "एजेंट विज़िट",
+    "home.noFarmsYet": "शुरू करने के लिए अपना पहला खेत जोड़ें",
+    "home.todayForFarm": "आज आपके खेत के लिए",
+    "home.askAdvisor": "इस मौसम में क्या उगाएँ, फसल सलाहकार से पूछें",
+    "home.ourPick": "हमारी पसंद",
+    "home.view": "देखें",
+    "farmgate.stepRequested": "अनुरोध",
+    "farmgate.stepVisit": "एजेंट विज़िट",
+    "farmgate.stepMapped": "नक्शा बना",
+    "farmgate.stepGreen": "ग्रीन स्कोर",
+    "farmgate.noMapYet": "एजेंट विज़िट के बाद नक्शा",
     "nav.language": "भाषा",
     "hero.title": "कृषि और फिनटेक के लिए आपका वन-स्टॉप समाधान",
     "hero.subtitle":
@@ -422,7 +505,7 @@ export const translations: Record<Locale, Record<TranslationKey, string>> = {
     "cta.heading": "चलिए शुरू करते हैं",
     "cta.subheading": "एक टिकाऊ भविष्य उगाएं — आपके खेत के लिए, और आने वाली पीढ़ी के लिए।",
     "cta.button": "शुरू करें",
-    "login.heading": "AgriFintech में आपका स्वागत है",
+    "login.heading": "AyaOne में आपका स्वागत है",
     "login.subtitle": "शुरू करने के लिए अपना फोन नंबर दर्ज करें।",
     "login.phoneLabel": "फोन नंबर",
     "login.sendOtp": "OTP भेजें",
@@ -455,6 +538,16 @@ export const translations: Record<Locale, Record<TranslationKey, string>> = {
     "home.comingSoon": "जल्द आ रहा है",
     "home.navHome": "होम",
     "home.navProfile": "प्रोफ़ाइल",
+    "profile.phone": "मोबाइल नंबर",
+    "profile.location": "गांव / शहर",
+    "profile.pincode": "पिनकोड",
+    "profile.farms": "रजिस्टर खेत",
+    "profile.memberSince": "सदस्य कब से",
+    "profile.language": "ऐप की भाषा",
+    "profile.logout": "लॉग आउट",
+    "profile.loggingOut": "लॉग आउट हो रहा है…",
+    "profile.demoNote": "आप डेमो प्रोफ़ाइल इस्तेमाल कर रहे हैं। दूसरी चुनने के लिए लॉग आउट करें।",
+    "profile.details": "आपकी जानकारी",
     "farmgate.greeting": "प्रक्रिया शुरू करने के लिए धन्यवाद।",
     "farmgate.intro": "कृपया आवश्यक विवरण भरें और एक विज़िट शेड्यूल करें।",
     "farmgate.labelField": "खेत का नाम (वैकल्पिक)",
@@ -547,6 +640,27 @@ export const translations: Record<Locale, Record<TranslationKey, string>> = {
     "cropAdvisory.register.done": "आपका खेत पंजीकृत हो गया!",
   },
   te: {
+    "home.myFarms": "నా పొలాలు",
+    "home.seeAll": "అన్నీ చూడండి",
+    "home.farms": "పొలాలు",
+    "home.hectares": "హెక్టార్లు",
+    "home.co2PerYear": "CO₂ / సంవత్సరం",
+    "home.services": "సేవలు",
+    "home.allServices": "అన్ని సేవలు",
+    "home.menu": "మెనూ",
+    "home.close": "మూసివేయి",
+    "home.navFarms": "పొలాలు",
+    "home.upcomingVisit": "ఏజెంట్ సందర్శన",
+    "home.noFarmsYet": "ప్రారంభించడానికి మీ మొదటి పొలాన్ని జోడించండి",
+    "home.todayForFarm": "ఈరోజు మీ పొలం కోసం",
+    "home.askAdvisor": "ఈ సీజన్\u200cలో ఏమి పండించాలో పంట సలహాదారుని అడగండి",
+    "home.ourPick": "మా ఎంపిక",
+    "home.view": "చూడండి",
+    "farmgate.stepRequested": "అభ్యర్థన",
+    "farmgate.stepVisit": "ఏజెంట్ సందర్శన",
+    "farmgate.stepMapped": "మ్యాప్ అయింది",
+    "farmgate.stepGreen": "గ్రీన్ స్కోర్",
+    "farmgate.noMapYet": "ఏజెంట్ సందర్శన తర్వాత మ్యాప్",
     "nav.language": "భాష",
     "hero.title": "వ్యవసాయం మరియు ఫిన్‌టెక్ కోసం మీ వన్-స్టాప్ సొల్యూషన్",
     "hero.subtitle":
@@ -606,7 +720,7 @@ export const translations: Record<Locale, Record<TranslationKey, string>> = {
     "cta.subheading":
       "ఒక సుస్థిర భవిష్యత్తును పెంచండి — మీ పొలం కోసం, మరియు రాబోయే తరం కోసం.",
     "cta.button": "ప్రారంభించండి",
-    "login.heading": "AgriFintech కి స్వాగతం",
+    "login.heading": "AyaOne కి స్వాగతం",
     "login.subtitle": "ప్రారంభించడానికి మీ ఫోన్ నంబర్ నమోదు చేయండి.",
     "login.phoneLabel": "ఫోన్ నంబర్",
     "login.sendOtp": "OTP పంపండి",
@@ -640,6 +754,16 @@ export const translations: Record<Locale, Record<TranslationKey, string>> = {
     "home.comingSoon": "త్వరలో వస్తుంది",
     "home.navHome": "హోమ్",
     "home.navProfile": "ప్రొఫైల్",
+    "profile.phone": "మొబైల్ నంబర్",
+    "profile.location": "గ్రామం / పట్టణం",
+    "profile.pincode": "పిన్‌కోడ్",
+    "profile.farms": "నమోదైన పొలాలు",
+    "profile.memberSince": "సభ్యత్వం నుండి",
+    "profile.language": "యాప్ భాష",
+    "profile.logout": "లాగ్ అవుట్",
+    "profile.loggingOut": "లాగ్ అవుట్ అవుతోంది…",
+    "profile.demoNote": "మీరు డెమో ప్రొఫైల్ ఉపయోగిస్తున్నారు. మరొకటి ఎంచుకోవడానికి లాగ్ అవుట్ చేయండి.",
+    "profile.details": "మీ వివరాలు",
     "farmgate.greeting": "ప్రక్రియను ప్రారంభించినందుకు ధన్యవాదాలు.",
     "farmgate.intro": "దయచేసి అవసరమైన వివరాలు పూరించి సందర్శనను షెడ్యూల్ చేయండి.",
     "farmgate.labelField": "పొలం పేరు (ఐచ్ఛికం)",
@@ -732,6 +856,27 @@ export const translations: Record<Locale, Record<TranslationKey, string>> = {
     "cropAdvisory.register.done": "మీ పొలం నమోదైంది!",
   },
   kn: {
+    "home.myFarms": "ನನ್ನ ಹೊಲಗಳು",
+    "home.seeAll": "ಎಲ್ಲಾ ನೋಡಿ",
+    "home.farms": "ಹೊಲಗಳು",
+    "home.hectares": "ಹೆಕ್ಟೇರ್",
+    "home.co2PerYear": "CO₂ / ವರ್ಷ",
+    "home.services": "ಸೇವೆಗಳು",
+    "home.allServices": "ಎಲ್ಲಾ ಸೇವೆಗಳು",
+    "home.menu": "ಮೆನು",
+    "home.close": "ಮುಚ್ಚಿ",
+    "home.navFarms": "ಹೊಲಗಳು",
+    "home.upcomingVisit": "ಏಜೆಂಟ್ ಭೇಟಿ",
+    "home.noFarmsYet": "ಪ್ರಾರಂಭಿಸಲು ನಿಮ್ಮ ಮೊದಲ ಹೊಲವನ್ನು ಸೇರಿಸಿ",
+    "home.todayForFarm": "ಇಂದು ನಿಮ್ಮ ಹೊಲಕ್ಕಾಗಿ",
+    "home.askAdvisor": "ಈ ಋತುವಿನಲ್ಲಿ ಏನು ಬೆಳೆಯಬೇಕೆಂದು ಬೆಳೆ ಸಲಹೆಗಾರರನ್ನು ಕೇಳಿ",
+    "home.ourPick": "ನಮ್ಮ ಆಯ್ಕೆ",
+    "home.view": "ನೋಡಿ",
+    "farmgate.stepRequested": "ವಿನಂತಿ",
+    "farmgate.stepVisit": "ಏಜೆಂಟ್ ಭೇಟಿ",
+    "farmgate.stepMapped": "ನಕ್ಷೆ ಆಗಿದೆ",
+    "farmgate.stepGreen": "ಗ್ರೀನ್ ಸ್ಕೋರ್",
+    "farmgate.noMapYet": "ಏಜೆಂಟ್ ಭೇಟಿಯ ನಂತರ ನಕ್ಷೆ",
     "nav.language": "ಭಾಷೆ",
     "hero.title": "ಕೃಷಿ ಮತ್ತು ಫಿನ್‌ಟೆಕ್‌ಗಾಗಿ ನಿಮ್ಮ ಒನ್-ಸ್ಟಾಪ್ ಪರಿಹಾರ",
     "hero.subtitle":
@@ -791,7 +936,7 @@ export const translations: Record<Locale, Record<TranslationKey, string>> = {
     "cta.subheading":
       "ಸುಸ್ಥಿರ ಭವಿಷ್ಯವನ್ನು ಬೆಳೆಸಿ — ನಿಮ್ಮ ಹೊಲಕ್ಕಾಗಿ, ಮತ್ತು ಮುಂದಿನ ಪೀಳಿಗೆಗಾಗಿ.",
     "cta.button": "ಪ್ರಾರಂಭಿಸಿ",
-    "login.heading": "AgriFintech ಗೆ ಸುಸ್ವಾಗತ",
+    "login.heading": "AyaOne ಗೆ ಸುಸ್ವಾಗತ",
     "login.subtitle": "ಪ್ರಾರಂಭಿಸಲು ನಿಮ್ಮ ಫೋನ್ ಸಂಖ್ಯೆಯನ್ನು ನಮೂದಿಸಿ.",
     "login.phoneLabel": "ಫೋನ್ ಸಂಖ್ಯೆ",
     "login.sendOtp": "OTP ಕಳುಹಿಸಿ",
@@ -825,6 +970,16 @@ export const translations: Record<Locale, Record<TranslationKey, string>> = {
     "home.comingSoon": "ಶೀಘ್ರದಲ್ಲಿ ಬರಲಿದೆ",
     "home.navHome": "ಹೋಮ್",
     "home.navProfile": "ಪ್ರೊಫೈಲ್",
+    "profile.phone": "ಮೊಬೈಲ್ ಸಂಖ್ಯೆ",
+    "profile.location": "ಹಳ್ಳಿ / ಪಟ್ಟಣ",
+    "profile.pincode": "ಪಿನ್‌ಕೋಡ್",
+    "profile.farms": "ನೋಂದಾಯಿತ ಹೊಲಗಳು",
+    "profile.memberSince": "ಸದಸ್ಯರಾದದ್ದು",
+    "profile.language": "ಆ್ಯಪ್ ಭಾಷೆ",
+    "profile.logout": "ಲಾಗ್ ಔಟ್",
+    "profile.loggingOut": "ಲಾಗ್ ಔಟ್ ಆಗುತ್ತಿದೆ…",
+    "profile.demoNote": "ನೀವು ಡೆಮೊ ಪ್ರೊಫೈಲ್ ಬಳಸುತ್ತಿದ್ದೀರಿ. ಬೇರೆ ಆಯ್ಕೆ ಮಾಡಲು ಲಾಗ್ ಔಟ್ ಮಾಡಿ.",
+    "profile.details": "ನಿಮ್ಮ ವಿವರಗಳು",
     "farmgate.greeting": "ಪ್ರಕ್ರಿಯೆಯನ್ನು ಪ್ರಾರಂಭಿಸಿದ್ದಕ್ಕೆ ಧನ್ಯವಾದಗಳು.",
     "farmgate.intro": "ದಯವಿಟ್ಟು ಅಗತ್ಯ ವಿವರಗಳನ್ನು ಭರ್ತಿ ಮಾಡಿ ಮತ್ತು ಭೇಟಿಯನ್ನು ನಿಗದಿಪಡಿಸಿ.",
     "farmgate.labelField": "ಹೊಲದ ಹೆಸರು (ಐಚ್ಛಿಕ)",
@@ -917,6 +1072,27 @@ export const translations: Record<Locale, Record<TranslationKey, string>> = {
     "cropAdvisory.register.done": "ನಿಮ್ಮ ಜಮೀನು ನೋಂದಾಯಿಸಲಾಗಿದೆ!",
   },
   ta: {
+    "home.myFarms": "என் வயல்கள்",
+    "home.seeAll": "அனைத்தும் பார்",
+    "home.farms": "வயல்கள்",
+    "home.hectares": "ஹெக்டேர்",
+    "home.co2PerYear": "CO₂ / ஆண்டு",
+    "home.services": "சேவைகள்",
+    "home.allServices": "அனைத்து சேவைகள்",
+    "home.menu": "மெனு",
+    "home.close": "மூடு",
+    "home.navFarms": "வயல்கள்",
+    "home.upcomingVisit": "முகவர் வருகை",
+    "home.noFarmsYet": "தொடங்க உங்கள் முதல் வயலைச் சேர்க்கவும்",
+    "home.todayForFarm": "இன்று உங்கள் வயலுக்கு",
+    "home.askAdvisor": "இந்த பருவத்தில் என்ன பயிரிடலாம் என பயிர் ஆலோசகரிடம் கேளுங்கள்",
+    "home.ourPick": "எங்கள் தேர்வு",
+    "home.view": "பார்",
+    "farmgate.stepRequested": "கோரிக்கை",
+    "farmgate.stepVisit": "முகவர் வருகை",
+    "farmgate.stepMapped": "வரைபடமானது",
+    "farmgate.stepGreen": "பசுமை மதிப்பெண்",
+    "farmgate.noMapYet": "முகவர் வருகைக்குப் பின் வரைபடம்",
     "nav.language": "மொழி",
     "hero.title": "விவசாயம் மற்றும் ஃபின்டெக்கிற்கான உங்கள் ஒரே தீர்வு",
     "hero.subtitle":
@@ -975,7 +1151,7 @@ export const translations: Record<Locale, Record<TranslationKey, string>> = {
     "cta.subheading":
       "ஒரு நிலையான எதிர்காலத்தை வளர்த்துக்கொள்ளுங்கள் — உங்கள் வயலுக்காக, மற்றும் அடுத்த தலைமுறைக்காக.",
     "cta.button": "தொடங்குங்கள்",
-    "login.heading": "AgriFintech-க்கு வரவேற்கிறோம்",
+    "login.heading": "AyaOne-க்கு வரவேற்கிறோம்",
     "login.subtitle": "தொடங்க உங்கள் தொலைபேசி எண்ணை உள்ளிடவும்.",
     "login.phoneLabel": "தொலைபேசி எண்",
     "login.sendOtp": "OTP அனுப்பு",
@@ -1009,6 +1185,16 @@ export const translations: Record<Locale, Record<TranslationKey, string>> = {
     "home.comingSoon": "விரைவில் வருகிறது",
     "home.navHome": "முகப்பு",
     "home.navProfile": "சுயவிவரம்",
+    "profile.phone": "கைபேசி எண்",
+    "profile.location": "கிராமம் / நகரம்",
+    "profile.pincode": "பின்கோடு",
+    "profile.farms": "பதிவான பண்ணைகள்",
+    "profile.memberSince": "உறுப்பினரான நாள்",
+    "profile.language": "செயலி மொழி",
+    "profile.logout": "வெளியேறு",
+    "profile.loggingOut": "வெளியேறுகிறது…",
+    "profile.demoNote": "நீங்கள் டெமோ சுயவிவரத்தைப் பயன்படுத்துகிறீர்கள். வேறொன்றைத் தேர்ந்தெடுக்க வெளியேறுங்கள்.",
+    "profile.details": "உங்கள் விவரங்கள்",
     "farmgate.greeting": "செயல்முறையை தொடங்கியதற்கு நன்றி.",
     "farmgate.intro": "தயவுசெய்து தேவையான விவரங்களை நிரப்பி ஒரு வருகையை திட்டமிடவும்.",
     "farmgate.labelField": "வயல் பெயர் (விரும்பினால்)",
@@ -1104,6 +1290,27 @@ export const translations: Record<Locale, Record<TranslationKey, string>> = {
     "cropAdvisory.register.done": "உங்கள் வயல் பதிவாகிவிட்டது!",
   },
   ml: {
+    "home.myFarms": "എന്റെ ഫാമുകൾ",
+    "home.seeAll": "എല്ലാം കാണുക",
+    "home.farms": "ഫാമുകൾ",
+    "home.hectares": "ഹെക്ടർ",
+    "home.co2PerYear": "CO₂ / വർഷം",
+    "home.services": "സേവനങ്ങൾ",
+    "home.allServices": "എല്ലാ സേവനങ്ങളും",
+    "home.menu": "മെനു",
+    "home.close": "അടയ്ക്കുക",
+    "home.navFarms": "ഫാമുകൾ",
+    "home.upcomingVisit": "ഏജന്റ് സന്ദർശനം",
+    "home.noFarmsYet": "ആരംഭിക്കാൻ നിങ്ങളുടെ ആദ്യ ഫാം ചേർക്കുക",
+    "home.todayForFarm": "ഇന്ന് നിങ്ങളുടെ ഫാമിന്",
+    "home.askAdvisor": "ഈ സീസണിൽ എന്ത് കൃഷി ചെയ്യണമെന്ന് വിള ഉപദേഷ്ടാവിനോട് ചോദിക്കുക",
+    "home.ourPick": "ഞങ്ങളുടെ തിരഞ്ഞെടുപ്പ്",
+    "home.view": "കാണുക",
+    "farmgate.stepRequested": "അഭ്യർത്ഥന",
+    "farmgate.stepVisit": "ഏജന്റ് സന്ദർശനം",
+    "farmgate.stepMapped": "മാപ്പ് ചെയ്തു",
+    "farmgate.stepGreen": "ഗ്രീൻ സ്കോർ",
+    "farmgate.noMapYet": "ഏജന്റ് സന്ദർശനത്തിന് ശേഷം മാപ്പ്",
     "nav.language": "ഭാഷ",
     "hero.title": "കൃഷിക്കും ഫിൻടെക്കിനും വേണ്ടിയുള്ള നിങ്ങളുടെ ഒറ്റ പരിഹാരം",
     "hero.subtitle":
@@ -1162,7 +1369,7 @@ export const translations: Record<Locale, Record<TranslationKey, string>> = {
     "cta.subheading":
       "ഒരു സ്ഥിരമായ ഭാവി കൃഷി ചെയ്യൂ — നിങ്ങളുടെ ഫാമിനു വേണ്ടി, അടുത്ത തലമുറക്കും.",
     "cta.button": "തുടങ്ങൂ",
-    "login.heading": "AgriFintech-ലേക്ക് സ്വാഗതം",
+    "login.heading": "AyaOne-ലേക്ക് സ്വാഗതം",
     "login.subtitle": "ആരംഭിക്കാൻ ഫോൺ നമ്പർ നൽകൂ.",
     "login.phoneLabel": "ഫോൺ നമ്പർ",
     "login.sendOtp": "OTP അയക്കൂ",
@@ -1196,6 +1403,16 @@ export const translations: Record<Locale, Record<TranslationKey, string>> = {
     "home.comingSoon": "ഉടൻ വരുന്നു",
     "home.navHome": "ഹോം",
     "home.navProfile": "പ്രൊഫൈൽ",
+    "profile.phone": "മൊബൈൽ നമ്പർ",
+    "profile.location": "ഗ്രാമം / പട്ടണം",
+    "profile.pincode": "പിൻകോഡ്",
+    "profile.farms": "രജിസ്റ്റർ ചെയ്ത കൃഷിയിടങ്ങൾ",
+    "profile.memberSince": "അംഗമായത്",
+    "profile.language": "ആപ്പ് ഭാഷ",
+    "profile.logout": "ലോഗ് ഔട്ട്",
+    "profile.loggingOut": "ലോഗ് ഔട്ട് ചെയ്യുന്നു…",
+    "profile.demoNote": "നിങ്ങൾ ഡെമോ പ്രൊഫൈൽ ഉപയോഗിക്കുന്നു. മറ്റൊന്ന് തിരഞ്ഞെടുക്കാൻ ലോഗ് ഔട്ട് ചെയ്യുക.",
+    "profile.details": "നിങ്ങളുടെ വിവരങ്ങൾ",
     "farmgate.greeting": "പ്രക്രിയ ആരംഭിച്ചതിനു നന്ദി.",
     "farmgate.intro":
       "ദയവുചെയ്ത് ആവശ്യമായ വിവരങ്ങൾ നൽകി ഒരു സന്ദർശനം ഷെഡ്യൂൾ ചെയ്യൂ.",

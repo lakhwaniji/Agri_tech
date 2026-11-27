@@ -1,0 +1,4 @@
+# Copy to terraform.tfvars and fill in (tfvars is git-ignored).
+alert_email        = "ayaone.ai@outlook.com"
+app_domain         = "app.ayaone.in"
+monthly_budget_usd = 30

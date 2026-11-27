@@ -1,0 +1,21 @@
+# Never bake secrets into the image — runtime secrets come from AWS Secrets Manager
+.env*
+*.pem
+
+node_modules
+.next
+.git
+.github
+.claude
+.vercel
+infra
+docs
+ds-bundle
+.ds-sync
+.design-sync
+*.tsbuildinfo
+npm-debug.log*
+.DS_Store
+Dockerfile
+.dockerignore
+mobile

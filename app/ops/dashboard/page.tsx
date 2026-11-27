@@ -36,7 +36,18 @@ export default async function OpsDashboardPage() {
   };
   const typedRequests = (requests ?? []) as unknown as RawRequest[];
 
+  // GPS pin + boundary for every farm in the list, for the Map view.
+  type Geo = { location: { lat: number; lng: number } | null; boundary: { lat: number; lng: number }[] | null };
+  const farmIds = [...new Set(typedRequests.map((r) => r.farm_id))];
+  const geoEntries = await Promise.all(
+    farmIds.map(async (id) => {
+      const { data } = await supabase.rpc("get_farm_geo", { p_farm_id: id });
+      return [id, (data as Geo | null) ?? { location: null, boundary: null }] as const;
+    }),
+  );
+  const geo = Object.fromEntries(geoEntries) as Record<string, Geo>;
+
   return (
-    <OpsDashboardScreen fullName={opsUser.full_name} requests={typedRequests} />
+    <OpsDashboardScreen fullName={opsUser.full_name} requests={typedRequests} geo={geo} />
   );
 }

@@ -1,0 +1,22 @@
+{
+  "name": "ayaone-mobile",
+  "private": true,
+  "version": "1.0.0",
+  "description": "AyaOne Android + iOS app: a Capacitor shell that loads https://app.ayaone.in",
+  "scripts": {
+    "icons": "capacitor-assets generate --iconBackgroundColor '#2F5D2A' --iconBackgroundColorDark '#2F5D2A' --splashBackgroundColor '#10221A' --splashBackgroundColorDark '#10221A'",
+    "sync": "cap sync android",
+    "open": "cap open android",
+    "sync:ios": "cap sync ios",
+    "open:ios": "cap open ios"
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.0.0",
+    "@capacitor/core": "^7.0.0",
+    "@capacitor/ios": "^7.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^7.0.0"
+  }
+}

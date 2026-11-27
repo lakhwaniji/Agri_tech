@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import {
   CameraIcon,
   CheckCircleIcon,
@@ -11,6 +12,12 @@ import {
 import type { Maturity, VegetationType } from "@/lib/o2-estimate";
 
 type Point = { lat: number; lng: number };
+
+// Leaflet touches `window`, so the map only renders in the browser.
+const FarmMap = dynamic(() => import("@/components/FarmMap").then((m) => m.FarmMap), {
+  ssr: false,
+  loading: () => <div className="h-[260px] animate-pulse rounded-2xl bg-zinc-100" />,
+});
 
 const VEGETATION_LABELS: Record<VegetationType, string> = {
   fruit_trees: "Fruit trees (mango, coconut, banana, etc.)",
@@ -409,6 +416,27 @@ export function OpsVisitScreen({
                   <p className="mt-1 text-sm text-red-600">{boundaryError}</p>
                 )}
               </div>
+
+              {/* Live map of what's been captured so far */}
+              {(location || boundary.length > 0) && (
+                <div>
+                  <p className="mb-2 text-sm font-medium text-zinc-700">
+                    Captured on map
+                    <span className="ml-2 font-normal text-zinc-500">
+                      {location ? "pin = farm location" : ""}
+                      {location && boundary.length > 0 ? " · " : ""}
+                      {boundary.length > 0 ? `${boundary.length} boundary point${boundary.length === 1 ? "" : "s"}` : ""}
+                    </span>
+                  </p>
+                  <FarmMap
+                    location={location}
+                    boundary={boundary.length > 0 ? boundary : null}
+                    showPoints
+                    closed={boundaryClosed}
+                    height={260}
+                  />
+                </div>
+              )}
             </div>
           )}
         </section>
