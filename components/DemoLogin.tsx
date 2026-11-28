@@ -138,6 +138,15 @@ export function DemoLogin({ farmers }: { farmers: DemoFarmer[] }) {
           </span>
           <span aria-hidden="true" className="text-emerald-700">→</span>
         </a>
+        <a
+          href="/verify"
+          className="mt-2 flex min-h-12 items-center justify-between rounded-2xl bg-zinc-50 px-4 text-sm text-zinc-700 ring-1 ring-zinc-200 hover:bg-zinc-100"
+        >
+          <span>
+            <span className="font-semibold text-zinc-900">Company or CSR team?</span> AyaOne Verify
+          </span>
+          <span aria-hidden="true" className="text-emerald-700">→</span>
+        </a>
       </div>
     </div>
   );

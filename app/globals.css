@@ -148,3 +148,10 @@ html { scroll-behavior: smooth; }
   .ao-tk-tick { animation: none !important; stroke-dashoffset: 0; }
   .ao-tk-pop, .ao-tk-after, .ao-coin { animation: none !important; }
 }
+
+/* ---------- AyaOne Verify ---------- */
+@keyframes aoGrow { from { width: 0; } }
+.ao-grow { animation: aoGrow 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+@keyframes aoBlink { 50% { opacity: 0.25; } }
+.ao-blink { animation: aoBlink 1.4s infinite; }
+@media (prefers-reduced-motion: reduce) { .ao-grow, .ao-blink { animation: none !important; } }
