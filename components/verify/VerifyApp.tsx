@@ -493,7 +493,10 @@ export function VerifyApp() {
   return (
     <div className="flex min-h-screen flex-wrap bg-zinc-100 text-zinc-900">
       <aside className="flex w-full flex-col gap-1 bg-[#14261A] px-3.5 py-4 lg:sticky lg:top-0 lg:h-screen lg:w-60 lg:py-5">
-        <div className="flex items-center gap-2.5 px-1.5 pb-3 lg:pb-5"><VerifyMark size={34} dark /><VerifyWordmark dark /></div>
+        <div className="flex items-center gap-2.5 px-1.5 pb-3 pt-[env(safe-area-inset-top)] lg:pb-5 lg:pt-0">
+          <VerifyMark size={34} dark /><VerifyWordmark dark />
+          <button type="button" onClick={() => { setWho(null); setScreen("overview"); }} className="ml-auto min-h-11 px-2 text-sm font-semibold text-[#B5DB7A] lg:hidden">Switch profile</button>
+        </div>
         <nav aria-label="Verify" className="flex gap-1 overflow-x-auto lg:flex-col">
           {NAV.map(([k, label]) => {
             const on = screen === k || (k === "funds" && screen === "detail");
